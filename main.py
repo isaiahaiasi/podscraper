@@ -1,6 +1,9 @@
+from logging import error
 import os
+from sys import argv
 import math
 import requests
+import json
 from bs4 import BeautifulSoup
 
 from dotenv import load_dotenv
@@ -30,11 +33,43 @@ def get_html(podNumber):
     return res.text
 
 
+def try_get(op, bs, default=None):
+    try:
+        return op(bs)
+    except BaseException as err:
+        print(err)
+        return default
+
+
+def get_tags(bs):
+    return [t.text for t in bs.find('section', class_="tags").find_all('a')]
+
+
+def get_timejumps(bs):
+    return [[li.a.attrs['href'], li.text] for li in
+            bs.find('div', class_='time-jumps').find_all('li')]
+
+
+def get_links(bs):
+    return [[li.a.attrs['href'], li.text] for li in
+            bs.find('section', id='links').find_all('li')]
+
+
+def get_guests(bs):
+    return [t.text for t in bs.find('section', id='guests').find_all('h3')]
+
+
 def get_data(html):
     bs = BeautifulSoup(html, 'html.parser')
 
     # redundant, but allows for nice separation
-    podNumber = int(bs.title.text.split(":")[0])
+    try:
+        podNumber = int(bs.title.text.split(":")[0])
+    except BaseException as err:
+        print(err)
+        return None
+
+    print(podNumber, '...')
 
     return {
         'episodeNumber': podNumber,
@@ -43,20 +78,32 @@ def get_data(html):
         'mp3Url': bs.audio.attrs['src'],
         'title': bs.find(id="show-title").h1.text.strip(),
         'publishedTime': bs.find("meta", property="article:published_time").attrs['content'],
-        'description': bs.find('div', class_='apply-typography'),
-        'tags': [t.text for t in bs.find('section', class_="tags").find_all('a')],
-        'guests': [t.text for t in bs.find('section', id='guests').find_all('h3')],
-        'links': [[t.a.attrs['href'], t.text] for t in bs.find('section', id='links').find_all('li')],
-        'timeJumps': [[li.a.attrs['href'], li.text] for li in bs.find('div', class_='time-jumps').find_all('li')]
+        'description': bs.find('div', class_='apply-typography').text.strip(),
+        'tags': try_get(get_tags, bs, []),
+        'guests': try_get(get_guests, bs, []),
+        'links': try_get(get_links, bs, []),
+        'timeJumps': try_get(get_timejumps, bs, [])
     }
 
-# TODO: call get_html & get_data on range 1:491 (or whatever)
 
-# TODO: store everything together & serialize it somehow
-# (convert everything to one big JSON file?)
+def fetch_pod_data(_range):
+    dataCollection = []
+    for i in _range:
+        html = get_html(i)
+        data = get_data(html)
+        dataCollection.append(data)
+    return dataCollection
+
+
+def serialize_data(data, filename):
+    with open(filename, "w") as f:
+        json.dump(data, f)
+
 
 # TODO: download mp3s...
 
 
 if __name__ == "__main__":
-    print(get_urls())
+    lowerRange, upperRange, filename = int(argv[1]), int(argv[2]), argv[3]
+    data = fetch_pod_data(range(lowerRange, upperRange))
+    serialize_data(data, filename)

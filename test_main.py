@@ -1,5 +1,6 @@
 import unittest
 from main import pad_num, get_data
+from local_fixtures.poddata import poddata
 
 
 class PaddingTestCase(unittest.TestCase):
@@ -17,10 +18,9 @@ class GetDataTestCase(unittest.TestCase):
     def test_bs4_res(self):
         with open("./local_fixtures/pod1.html", "r", encoding="utf-8") as fp:
             data = get_data(fp.read())
-            self.assertEqual(data, 'awefaw')
-
-
-class LoadFixture(unittest.TestCase):
-    def test_html_fixture(self):
-        f = open("./local_fixtures/pod1.html", "r")
-        print(f.read())
+            self.assertEqual(data['episodeNumber'], poddata['episodeNumber'])
+            self.assertEqual(data['url'], poddata['url'])
+            self.assertEqual(data['canonical'], poddata['canonical'])
+            self.assertEqual(data['mp3Url'], poddata['mp3Url'])
+            self.assertEqual(data['title'], poddata['title'])
+            self.assertEqual(data['publishedTime'], poddata['publishedTime'])

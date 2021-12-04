@@ -1,5 +1,4 @@
 import unittest
-import os
 from main import pad_num, get_data
 
 
@@ -16,5 +15,12 @@ class PaddingTestCase(unittest.TestCase):
 
 class GetDataTestCase(unittest.TestCase):
     def test_bs4_res(self):
-        url = os.environ.get('POD_URL') + '/151'
-        self.assertEqual(get_data(url), 'awefaw')
+        with open("./local_fixtures/pod1.html", "r", encoding="utf-8") as fp:
+            data = get_data(fp.read())
+            self.assertEqual(data, 'awefaw')
+
+
+class LoadFixture(unittest.TestCase):
+    def test_html_fixture(self):
+        f = open("./local_fixtures/pod1.html", "r")
+        print(f.read())

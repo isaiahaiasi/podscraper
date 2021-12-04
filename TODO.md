@@ -9,7 +9,7 @@ basically all I want is to make a table for the pod data & a folder full of mp3s
       - title
       - description
       - guests
-      - (not sure about timestamps!)
+      - not sure about timestamps!
 - [x] serialize data to avoid repeatedly hitting the actual website
-- [ ] download the media (tbh I can probably stop here)
+- [ ] find missing episodes that could not be found by the non-canonical url (eg, episode 404...)
 - [ ] write a script to take the data & turn it into an RSS feed

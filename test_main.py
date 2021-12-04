@@ -1,5 +1,6 @@
 import unittest
-from main import pad_num, get_data
+from main import pad_num
+from get_data import get_data
 from local_fixtures.poddata import poddata
 
 

@@ -1,6 +1,7 @@
 import unittest
 from main import pad_num
 from get_data import get_data
+from get_rss import write_xml
 from local_fixtures.poddata import poddata
 
 
@@ -25,3 +26,9 @@ class GetDataTestCase(unittest.TestCase):
             self.assertEqual(data['mp3Url'], poddata['mp3Url'])
             self.assertEqual(data['title'], poddata['title'])
             self.assertEqual(data['publishedTime'], poddata['publishedTime'])
+
+
+class WriteXMLTestCase(unittest.TestCase):
+    def test_xml_write(self):
+        write_xml('pod_data/poddata-50-149.json',
+                  'xml/testroot.xml', 'xml/out1.xml')
